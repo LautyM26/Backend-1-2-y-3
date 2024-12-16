@@ -1,0 +1,112 @@
+[
+     {
+          "id": 1,
+          "title": "Celular",
+          "description": "teléfono portátil desde el que se puede llamar , jugar , sirve para hablar por mensaje",
+          "price": 300000,
+          "code": "pr001",
+          "status": true,
+          "stock": 1000,
+          "category": "string"
+     },
+     {
+          "id": 2,
+          "title": "Tablet",
+          "description": "dispositivo electrónico portátil que se caracteriza por tener una pantalla táctil y no contar con un teclado físico",
+          "price": 380000,
+          "code": "pr002",
+          "status": true,
+          "stock": 800,
+          "category": "string"
+     },
+     {
+        "id": 3,
+        "title": "Computadora",
+        "description": "maquina electrónica que puede procesar y almacenar información, y resolver problemas matemáticos y lógicos con rapidez",
+        "price": 800000,
+        "code": "pr003",
+        "status": true,
+        "stock": 300,
+        "category": "string"
+     },
+     {
+          "id": 4,
+          "title": "Auriculares",
+          "description": "Dispositivo de audio que permite escuchar música o realizar llamadas de manera personal y sin ruido externo",
+          "price": 50000,
+          "code": "pr004",
+          "status": true,
+          "stock": 1200,
+          "category": "string"
+     },
+     {
+          "id": 5,
+          "title": "Monitor",
+          "description": "Pantalla electrónica utilizada para visualizar imágenes, videos y datos generados por una computadora",
+          "price": 250000,
+          "code": "pr005",
+          "status": true,
+          "stock": 500,
+          "category": "string"
+     },
+     {
+          "id": 6,
+          "title": "Teclado ibra",
+          "description": "Dispositivo de entrada utilizado para escribir texto y ejecutar comandos en una computadora",
+          "price": 45000,
+          "code": "pr006",
+          "status": true,
+          "stock": 1500,
+          "category": "string"
+     },
+     {
+          "id": 7,
+          "title": "Mouse",
+          "description": "Dispositivo señalador utilizado para interactuar con la interfaz gráfica de una computadora",
+          "price": 30000,
+          "code": "pr007",
+          "status": true,
+          "stock": 2000,
+          "category": "string"
+     },
+     {
+          "id": 8,
+          "title": "Impresora",
+          "description": "Dispositivo que permite convertir documentos digitales en papel mediante la impresión",
+          "price": 150000,
+          "code": "pr008",
+          "status": true,
+          "stock": 400,
+          "category": "string"
+     },
+     {
+          "id": 9,
+          "title": "Smartwatch",
+          "description": "Reloj inteligente que permite realizar un seguimiento de la actividad física, recibir notificaciones y más",
+          "price": 120000,
+          "code": "pr009",
+          "status": true,
+          "stock": 700,
+          "category": "string"
+     },
+     {
+          "id": 10,
+          "title": "Cámara",
+          "description": "Dispositivo electrónico utilizado para capturar fotografías y grabar videos con alta calidad",
+          "price": 400000,
+          "code": "pr010",
+          "status": true,
+          "stock": 300,
+          "category": "string"
+     },
+     {
+          "id": 11,
+          "title": "Play",
+          "description": "una serie de consolas de videojuegos creadas y desarrolladas por Sony Interactive Entertainment.",
+          "code": "pr011",
+          "price": "1000000000",
+          "status": "true",
+          "stock": "500",
+          "category": "string"
+     }
+]
