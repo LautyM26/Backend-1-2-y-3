@@ -16,19 +16,19 @@ class ProductsManager{
     }
 
     async addProduct(product) {
-        const products = await this.getProducts();
+        const products = await this.getProducts()
     
-        const { title, description, code, price, status, stock, category } = product;
+        const { title, description, code, price, status, stock, category } = product
         if (!title || !description || !code || price == null || status == null || stock == null || !category) {
-            throw new Error("Todos los campos son obligatorios: title, description, code, price, status, stock, category");
+            throw new Error("Todos los campos son obligatorios: title, description, code, price, status, stock, category")
         }
     
-        const codeExists = products.some(p => p.code === code);
+        const codeExists = products.some(p => p.code === code)
         if (codeExists) {
-            throw new Error(`El código ${code} ya existe, usa otro.`);
+            throw new Error(`El código ${code} ya existe, usa otro.`)
         }
     
-        const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+        const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1
     
         const newProduct = {
             id: newId,
@@ -41,30 +41,30 @@ class ProductsManager{
             category
         };
     
-        products.push(newProduct);
+        products.push(newProduct)
         
-        await fs.promises.writeFile(this.#path, JSON.stringify(products, null, 2));
+        await fs.promises.writeFile(this.#path, JSON.stringify(products, null, 2))
     
-        return newProduct;
+        return newProduct
     }
     
 
     async getProductById(id) {
-        const products = await this.getProducts();
+        const products = await this.getProducts()
 
-        const producto = products.find(p => p.id === Number(id));
+        const producto = products.find(p => p.id === Number(id))
         if (!producto) {
-            return null; 
+            return null 
         }
-        return producto;
+        return producto
     }
 
     async updateProductById(id, updatedFields) {
-        const products = await this.getProducts();
-        const productIndex = products.findIndex(p => p.id === Number(id));
+        const products = await this.getProducts()
+        const productIndex = products.findIndex(p => p.id === Number(id))
     
         if (productIndex === -1) {
-            return null; 
+            return null 
         }
         products[productIndex] = {
             ...products[productIndex],
@@ -72,26 +72,44 @@ class ProductsManager{
             id: products[productIndex].id 
         };
     
-        await fs.promises.writeFile(this.#path, JSON.stringify(products, null, 5));
-        return products[productIndex];
+        await fs.promises.writeFile(this.#path, JSON.stringify(products, null, 5))
+        return products[productIndex]
     }
     
 
     async deleteProductById(id) {
-        const products = await this.getProducts();
-        const productIndex = products.findIndex(p => p.id === Number(id));
+        const products = await this.getProducts()
+        const productIndex = products.findIndex(p => p.id === Number(id))
     
         if (productIndex === -1) {
             return null; 
         }
     
-        const deletedProduct = products.splice(productIndex, 1);
-        await fs.promises.writeFile(this.#path, JSON.stringify(products, null, 5));
-        return deletedProduct[0];
+        const deletedProduct = products.splice(productIndex, 1)
+        await fs.promises.writeFile(this.#path, JSON.stringify(products, null, 5))
+        return deletedProduct[0]
+    }
+
+
+    async cargaDeProducts() {
+        
+    // Carga los productos desde un archivo JSON
+     filePath = "./src/data/products.json"
+
+     // Función para cargar los productos
+      loadProducts = () => {
+         try {
+             const data = fs.readFileSync(filePath, "utf-8")
+             return JSON.parse(data)
+         } catch (err) {
+             console.error("Error loading products:", err)
+             return []
+         }
+     };   
     }
     
 }
 
-const productsManager = new ProductsManager("./src/data/products.json");
+const productsManager = new ProductsManager("./src/data/products.json")
 
-export default productsManager;
+export default productsManager

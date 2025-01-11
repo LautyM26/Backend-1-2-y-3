@@ -1,0 +1,56 @@
+<hr>
+<h1>Lista de productos</h1>
+
+<table>
+    <head>
+        <tr>
+            <th>ID</th>
+            <th>Producto</th>
+            <th>Descripción</th>
+            <th>Precio</th>
+            <th>Código</th>
+            <th>Stock</th>
+            <th>Categoría</th>
+        </tr>
+    </head>
+    <body>
+        {{#each productos}}
+        <tr>
+            <td>{{this.id}}</td>
+            <td>{{this.title}}</td>
+            <td>{{this.description}}</td>
+            <td>${{this.price}}</td>
+            <td>{{this.code}}</td>
+            <td>{{this.stock}}</td>
+            <td>{{this.category}}</td>
+        </tr>
+        {{/each}}
+    </body>
+</table>
+
+<style>
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    th, td {
+        border: 1px solid #ccc;
+        padding: 10px;
+        text-align: left;
+    }
+
+    th {
+        background-color: #f4f4f4;
+        font-weight: bold;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    tr:hover {
+        background-color: #eaeaea;
+    }
+</style>
