@@ -1,44 +1,67 @@
-<h1>Lista de productos</h2>
-<hr>
-{{#if producto}}
-        <div>
-            <h2>{{producto.title}}</h2>
-            <p><strong>Descripción:</strong> {{producto.description}}</p>
-            <p><strong>Precio:</strong> ${{producto.price}}</p>
-            <p><strong>Código:</strong> {{producto.code}}</p>
-            <p><strong>Stock:</strong> {{producto.stock}}</p>
-        </div>
-{{/if}}
+<h1>Productos</h1>
+<table id="productos-table">
+  <thead>
+    <tr>
+      <th>Título</th>
+      <th>Descripción</th>
+      <th>Precio</th>
+      <th>Categoría</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody id="productos-body">
+    {{#each products}}
+    <tr>
+      <td>{{this.title}}</td>
+      <td>{{this.description}}</td>
+      <td>${{this.price}}</td>
+      <td>{{this.category}}</td>
+      <td>
+        <a href="/products/{{this.id}}" class="btn btn-info">Ver detalles</a>
+        <button class="btn btn-success add-to-cart" data-id="{{this.id}}">Agregar al carrito</button>
+      </td>
+    </tr>
+    {{/each}}
+  </tbody>
+</table>
+
+<div>
+  {{#if hasPrevPage}}
+  <a href="?page={{prevPage}}&limit={{limit}}" class="btn btn-primary">Anterior</a>
+  {{/if}}
+
+  {{#if hasNextPage}}
+  <a href="?page={{nextPage}}&limit={{limit}}" class="btn btn-primary">Siguiente</a>
+  {{/if}}
+</div>
+
+<style>
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    th, td {
+        border: 1px solid #ccc;
+        padding: 10px;
+        text-align: left;
+    }
+
+    th {
+        background-color: #f4f4f4;
+        font-weight: bold;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    tr:hover {
+        background-color: #eaeaea;
+    }
+</style> 
+
 
 <script src="/socket.io/socket.io.js"></script>
-   <script>
-       const socket = io()
-
-       socket.on("updateProducts", (product) => {
-           if (product.id) {
-               const newRow = document.createElement("tr");
-               newRow.id = `product-${product.id}`
-               newRow.innerHTML = `
-                   <td>${product.id}</td>
-                   <td>${product.title}</td>
-                   <td>${product.description}</td>
-                   <td>$${product.price}</td>
-                   <td>${product.status}</td>
-                   <td>${product.code}</td>
-                   <td>${product.stock}</td>
-                   <td>${product.category}</td>`
-               document.querySelector("#productTable tbody").appendChild(newRow)
-           } else {
-               
-               const row = document.getElementById(`product-${product.id}`)
-               if (row) {
-                   row.remove()
-               }
-           }
-       })
-
-       function deleteProduct(productId) {
-           socket.emit("deleteProduct", productId)
-        }
-   </script>
-
+<script src="/js/main.js"></script>

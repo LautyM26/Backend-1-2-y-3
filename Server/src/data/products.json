@@ -20,14 +20,14 @@
           "category": "string"
      },
      {
-        "id": 3,
-        "title": "Computadora",
-        "description": "maquina electrónica que puede procesar y almacenar información, y resolver problemas matemáticos y lógicos con rapidez",
-        "price": 800000,
-        "code": "pr003",
-        "status": true,
-        "stock": 300,
-        "category": "string"
+          "id": 3,
+          "title": "Computadora",
+          "description": "maquina electrónica que puede procesar y almacenar información, y resolver problemas matemáticos y lógicos con rapidez",
+          "price": 800000,
+          "code": "pr003",
+          "status": true,
+          "stock": 300,
+          "category": "string"
      },
      {
           "id": 4,
@@ -97,16 +97,6 @@
           "code": "pr010",
           "status": true,
           "stock": 300,
-          "category": "string"
-     },
-     {
-          "id": 11,
-          "title": "Play5",
-          "description": "una serie de consolas de videojuegos creadas y desarrolladas por Sony Interactive Entertainment.",
-          "code": "pr011",
-          "price": "1000000000",
-          "status": "true",
-          "stock": "500",
           "category": "string"
      }
 ]

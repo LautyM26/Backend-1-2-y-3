@@ -1,60 +1,56 @@
-import fs from "fs"
+import Cart from "../models/carts.js"
 
 class CartsManager {
-    #path = ""
-
-    constructor(filePath) {
-        this.#path = filePath
-    }
-
     async getCarts() {
-        if (fs.existsSync(this.#path)) {
-            const cartsData = await fs.promises.readFile(this.#path, "utf-8")
-            return JSON.parse(cartsData)
+        try {
+            return await Cart.find().populate("products.product")
+        } catch (error) {
+            console.error("❌ Error al obtener los carritos:", error)
+            throw new Error("Error al obtener los carritos")
         }
-        return [];
-    }
-
-    async saveCarts(carts) {
-        await fs.promises.writeFile(this.#path, JSON.stringify(carts, null, 2))
     }
 
     async createCart() {
-        const carts = await this.getCarts()
-        const newCart = {
-            id: carts.length > 0 ? Math.max(...carts.map((c) => c.id)) + 1 : 1,
-            products: [],
-        };
-
-        carts.push(newCart)
-        await this.saveCarts(carts)
-        return newCart
+        try {
+            const newCart = new Cart({ products: [] })
+            await newCart.save()
+            return newCart
+        } catch (error) {
+            console.error("❌ Error al crear el carrito:", error)
+            return null
+        }
     }
 
     async getCartById(cid) {
-        const carts = await this.getCarts()
-        return carts.find((cart) => cart.id === Number(cid)) || null
+        try {
+            return await Cart.findById(cid).populate("products.product")
+        } catch (error) {
+            console.error("❌ Error al obtener el carrito:", error)
+            return null
+        }
     }
 
     async addProductToCart(cid, pid) {
-        const carts = await this.getCarts()
-        const cartIndex = carts.findIndex((cart) => cart.id === Number(cid))
+        try {
+            const cart = await Cart.findById(cid)
+            if (!cart) return null;
 
-        if (cartIndex === -1) return null
+            const existingProduct = cart.products.find((item) => item.product.toString() === pid)
 
-        const cart = carts[cartIndex]
-        const existingProduct = cart.products.find((prod) => prod.product === Number(pid))
+            if (existingProduct) {
+                existingProduct.quantity += 1
+            } else {
+                cart.products.push({ product: pid, quantity: 1 })
+            }
 
-        if (existingProduct) {
-            existingProduct.quantity += 1
-        } else {
-            cart.products.push({ product: Number(pid), quantity: 1 })
+            await cart.save()
+            return cart
+        } catch (error) {
+            console.error("❌ Error al agregar el producto al carrito:", error)
+            return null
         }
-
-        carts[cartIndex] = cart
-        await this.saveCarts(carts)
-        return cart;
     }
 }
 
-export default CartsManager
+
+export default CartsManager;

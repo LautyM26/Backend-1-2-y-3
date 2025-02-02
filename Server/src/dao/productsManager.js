@@ -1,115 +1,58 @@
-import fs from "fs"
+import Product from "../models/products.js"
 
-class ProductsManager{
-
-    #path=""
-    constructor(rutaArchivo){
-        this.#path=rutaArchivo
-    }
-
-    async getProducts(){
-        if(fs.existsSync(this.#path)){
-            return JSON.parse(await fs.promises.readFile(this.#path, {encoding:"utf-8"}))
-        }else{
-            return []
+class ProductsManager {
+    async getProducts() {
+        try {
+            return await Product.find()
+        } catch (error) {
+            console.error("❌ Error al obtener los productos:", error)
+            throw new Error("Error al obtener los productos")
         }
     }
 
     async addProduct(product) {
-        const products = await this.getProducts()
-    
         const { title, description, code, price, status, stock, category } = product
-        if (!title || !description || !code || price == null || status == null || stock == null || !category) {
-            throw new Error("Todos los campos son obligatorios: title, description, code, price, status, stock, category")
+
+        if (!title || !description || !code || price == null || stock == null || !category) {
+            throw new Error("⚠️ Todos los campos son obligatorios")
         }
-    
-        const codeExists = products.some(p => p.code === code)
-        if (codeExists) {
-            throw new Error(`El código ${code} ya existe, usa otro.`)
+
+        try {
+            const newProduct = new Product({ title, description, code, price, status, stock, category })
+            await newProduct.save()
+            return newProduct
+        } catch (error) {
+            console.error("❌ Error al agregar el producto:", error)
+            throw new Error("Error al agregar el producto")
         }
-    
-        const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1
-    
-        const newProduct = {
-            id: newId,
-            title,
-            description,
-            code,
-            price,
-            status,
-            stock,
-            category
-        };
-    
-        products.push(newProduct)
-        
-        await fs.promises.writeFile(this.#path, JSON.stringify(products, null, 2))
-    
-        return newProduct
     }
-    
 
     async getProductById(id) {
-        const products = await this.getProducts()
-
-        const producto = products.find(p => p.id === Number(id))
-        if (!producto) {
-            return null 
+        try {
+            return await Product.findById(id)
+        } catch (error) {
+            console.error("❌ Error al obtener el producto:", error)
+            return null
         }
-        return producto
     }
 
     async updateProductById(id, updatedFields) {
-        const products = await this.getProducts()
-        const productIndex = products.findIndex(p => p.id === Number(id))
-    
-        if (productIndex === -1) {
-            return null 
+        try {
+            return await Product.findByIdAndUpdate(id, updatedFields, { new: true })
+        } catch (error) {
+            console.error("❌ Error al actualizar el producto:", error)
+            return null
         }
-        products[productIndex] = {
-            ...products[productIndex],
-            ...updatedFields,
-            id: products[productIndex].id 
-        };
-    
-        await fs.promises.writeFile(this.#path, JSON.stringify(products, null, 5))
-        return products[productIndex]
     }
-    
 
     async deleteProductById(id) {
-        const products = await this.getProducts()
-        const productIndex = products.findIndex(p => p.id === Number(id))
-    
-        if (productIndex === -1) {
-            return null; 
+        try {
+            return await Product.findByIdAndDelete(id)
+        } catch (error) {
+            console.error("❌ Error al eliminar el producto:", error)
+            return null
         }
-    
-        const deletedProduct = products.splice(productIndex, 1)
-        await fs.promises.writeFile(this.#path, JSON.stringify(products, null, 5))
-        return deletedProduct[0]
     }
-
-
-    async cargaDeProducts() {
-        
-    // Carga los productos desde un archivo JSON
-     filePath = "./src/data/products.json"
-
-     // Función para cargar los productos
-      loadProducts = () => {
-         try {
-             const data = fs.readFileSync(filePath, "utf-8")
-             return JSON.parse(data)
-         } catch (err) {
-             console.error("Error loading products:", err)
-             return []
-         }
-     };   
-    }
-    
 }
 
-const productsManager = new ProductsManager("./src/data/products.json")
-
-export default productsManager
+export default new ProductsManager()
