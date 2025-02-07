@@ -11,7 +11,7 @@ router.get("/", async (req, res) => {
 
     res.setHeader("Content-Type", "application/json")
     return res.status(200).json({ payload: products })
-});
+})
 
 
 router.get("/:pid", async (req, res) => {
@@ -36,126 +36,53 @@ router.get("/:pid", async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: "Error interno del servidor" })
     }
-});
+})
 
 
-router.post("/", async (req, res) => {
-    const newProductData = req.body
-
+router.get("/", async (req, res) => {
     try {
-        const newProduct = await productsManager.addProduct(newProductData)
+        const { limit = 10, page = 1, sort, query } = req.query
 
-        return res.status(201).json({
-            message: "Producto agregado exitosamente",
-            product: newProduct
-        })
+        const limitParsed = Math.max(parseInt(limit, 10), 1)
+        const pageParsed = Math.max(parseInt(page, 10), 1)
 
-    } catch (error) {
-        return res.status(400).json({ error: error.message })
-    }
-});
+        const searchFilter = query ? { title: { $regex: query, $options: "i" } } : {}
 
+        const sortOrder = sort === "asc" ? { price: 1 } : sort === "desc" ? { price: -1 } : {}
 
-router.put("/:pid", async (req, res) => {
-    const { pid } = req.params
-    const updatedFields = req.body
+        const totalProducts = await Product.countDocuments(searchFilter)
+        const totalPages = Math.ceil(totalProducts / limitParsed)
 
-    if (updatedFields.id) {
-        return res.status(400).json({ error: "El campo 'id' no se puede actualizar" })
-    }
+        const products = await Product.find(searchFilter)
+            .sort(sortOrder)
+            .skip((pageParsed - 1) * limitParsed)
+            .limit(limitParsed);
 
-    try {
-        const updatedProduct = await productsManager.updateProductById(pid, updatedFields)
-        if (!updatedProduct) {
-            return res.status(404).json({ error: `Producto con ID ${pid} no encontrado` })
-        }
+        const hasPrevPage = pageParsed > 1;
+        const hasNextPage = pageParsed < totalPages;
 
-        return res.status(200).json({
-            message: `Producto con ID ${pid} actualizado correctamente`,
-            product: updatedProduct
+        const baseUrl = "/api/products"
+        const prevLink = hasPrevPage ? `${baseUrl}?limit=${limitParsed}&page=${pageParsed - 1}&sort=${sort || ""}` : null
+        const nextLink = hasNextPage ? `${baseUrl}?limit=${limitParsed}&page=${pageParsed + 1}&sort=${sort || ""}` : null
+
+        res.status(200).json({
+            status: "success",
+            payload: products,
+            totalPages,
+            prevPage: hasPrevPage ? pageParsed - 1 : null,
+            nextPage: hasNextPage ? pageParsed + 1 : null,
+            currentPage: pageParsed,
+            hasPrevPage,
+            hasNextPage,
+            prevLink,
+            nextLink,
         });
 
     } catch (error) {
-        return res.status(500).json({ error: "Error interno del servidor" })
-    }
-});
-
-
-router.delete("/:pid", async (req, res) => {
-    const { pid } = req.params
-
-    try {
-        const deletedProduct = await productsManager.deleteProductById(pid)
-        if (!deletedProduct) {
-            return res.status(404).json({ error: `Producto con ID ${pid} no encontrado` })
-        }
-
-        return res.status(200).json({
-            message: `Producto con ID ${pid} eliminado correctamente`,
-            product: deletedProduct
-        })
-
-    } catch (error) {
-        return res.status(500).json({ error: "Error interno del servidor" })
-    }
-});
-
-
-router.get("/", async (req, res) => {
-    try {
-        const db = getDB()
-        const products = await db.collection("products").find().toArray()
-        return res.status(200).json({ payload: products })
-
-    } catch (error) {
-        return res.status(500).json({ error: "Error al obtener los productos" })
-    }
-});
-
-
-router.post("/", async (req, res) => {
-    const newProductData = req.body
-    try {
-        const db = getDB()
-        const result = await db.collection("products").insertOne(newProductData)
-        return res.status(201).json({
-            message: "Producto agregado exitosamente",
-            product: result.ops[0],
-        })
-
-    } catch (error) {
-        return res.status(500).json({ error: "Error al agregar el producto" })
-    }
-});
-
-
-router.get("/", async (req, res) => {
-    const { limit = 10, page = 1, sort, query } = req.query
-
-    try {
-        const db = getDB()
-        const filters = query ? { title: { $regex: query, $options: "i" } } : {}
-
-        const options = {
-            limit: parseInt(limit),
-            skip: (parseInt(page) - 1) * parseInt(limit), 
-            sort: sort ? { price: sort === "asc" ? 1 : -1 } : {}, 
-        }
-
-        const products = await db.collection("products").find(filters, options).toArray()
-        const totalProducts = await db.collection("products").countDocuments(filters)
-
-        return res.status(200).json({
-            payload: products,
-            totalPages: Math.ceil(totalProducts / parseInt(limit)),
-            currentPage: parseInt(page),
-        })
-
-    } catch (error) {
         console.error("Error al obtener los productos:", error)
-        return res.status(500).json({ error: "Error al obtener los productos" })
+        res.status(500).json({ status: "error", message: "Error al obtener los productos" })
     }
-});
+})
 
 
 router.get("/products", async (req, res) => {
@@ -198,6 +125,96 @@ router.get("/products", async (req, res) => {
     } catch (error) {
         console.error("Error al obtener los productos:", error)
         res.status(500).json({ status: "error", message: "Error al obtener los productos" })
+    }
+})
+
+
+router.post("/", async (req, res) => {
+    const newProductData = req.body
+
+    try {
+        const newProduct = await productsManager.addProduct(newProductData)
+
+        return res.status(201).json({
+            message: "Producto agregado exitosamente",
+            product: newProduct
+        })
+
+    } catch (error) {
+        return res.status(400).json({ error: error.message })
+    }
+})
+
+
+router.put("/:pid", async (req, res) => {
+    const { pid } = req.params
+    const updatedFields = req.body
+
+    if (updatedFields.id) {
+        return res.status(400).json({ error: "El campo 'id' no se puede actualizar" })
+    }
+
+    try {
+        const updatedProduct = await productsManager.updateProductById(pid, updatedFields)
+        if (!updatedProduct) {
+            return res.status(404).json({ error: `Producto con ID ${pid} no encontrado` })
+        }
+
+        return res.status(200).json({
+            message: `Producto con ID ${pid} actualizado correctamente`,
+            product: updatedProduct
+        })
+
+    } catch (error) {
+        return res.status(500).json({ error: "Error interno del servidor" })
+    }
+})
+
+
+router.delete("/:pid", async (req, res) => {
+    const { pid } = req.params
+
+    try {
+        const deletedProduct = await productsManager.deleteProductById(pid)
+        if (!deletedProduct) {
+            return res.status(404).json({ error: `Producto con ID ${pid} no encontrado` })
+        }
+
+        return res.status(200).json({
+            message: `Producto con ID ${pid} eliminado correctamente`,
+            product: deletedProduct
+        })
+
+    } catch (error) {
+        return res.status(500).json({ error: "Error interno del servidor" })
+    }
+})
+
+
+router.get("/", async (req, res) => {
+    try {
+        const db = getDB()
+        const products = await db.collection("products").find().toArray()
+        return res.status(200).json({ payload: products })
+
+    } catch (error) {
+        return res.status(500).json({ error: "Error al obtener los productos" })
+    }
+})
+
+
+router.post("/", async (req, res) => {
+    const newProductData = req.body
+    try {
+        const db = getDB()
+        const result = await db.collection("products").insertOne(newProductData)
+        return res.status(201).json({
+            message: "Producto agregado exitosamente",
+            product: result.ops[0],
+        })
+
+    } catch (error) {
+        return res.status(500).json({ error: "Error al agregar el producto" })
     }
 })
 
