@@ -6,6 +6,34 @@ import UserModel from "../models/user.js"
 const router = Router()
 const SECRET_KEY = "claveSuperSecreta"
 
+router.post("/register", async (req, res) => {
+  const { first_name, last_name, email, age, password } = req.body
+
+  try {
+    // Verificar si el usuario ya existe
+    const userExists = await UserModel.findOne({ email })
+    if (userExists) {
+      return res.status(400).json({ message: "El usuario ya está registrado" })
+    }
+
+    // Crear nuevo usuario
+    const newUser = new UserModel({
+      first_name,
+      last_name,
+      email,
+      age,
+      password, 
+    })
+
+    await newUser.save()
+
+    res.status(201).json({ message: "Usuario registrado exitosamente" })
+  } catch (error) {
+    res.status(500).json({ message: "Error en el servidor", error })
+  }
+})
+
+
 router.post("/login", async (req, res) => {
   const { email, password } = req.body
 
