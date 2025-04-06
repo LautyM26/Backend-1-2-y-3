@@ -9,10 +9,11 @@ import mongoose from "mongoose"
 import passport from "passport"
 import session from "express-session"
 import { Strategy as JWTStrategy, ExtractJwt } from 'passport-jwt'
-import authRoutes from "./routes/authRoutes.js"
 import protectedRoutes from "./routes/protectedRoutes.js"
 import sessionsRouter from './routes/sessionsRouter.js'
 import UserModel from './models/user.js'
+import cookieParser from 'cookie-parser'
+import purchaseRouter from './routes/purchaseRouter.js'
 
 
 // Conexión a MongoDB
@@ -38,10 +39,13 @@ app.use("/api/products", productsRouter)
 app.use("/api/carts", cartsRouter)
 app.use("/", viewsRouter)
 
-app.use("/api/auth", authRoutes)
 app.use("/api/private", protectedRoutes)
 
 app.use("/api/sessions", sessionsRouter)
+
+app.use(cookieParser())
+
+app.use('/api/purchase', purchaseRouter)
 
 
 // Configuración de la sesión

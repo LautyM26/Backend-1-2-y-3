@@ -2,8 +2,12 @@ import express from "express"
 import productsManager from "../dao/productsManager.js" 
 import { getDB } from "../dataBase/db.js"
 import Product from "../models/products.js"
+import passport from 'passport'
+import { authorizeRoles } from '../middlewares/authorization.js'
+import ProductsRepository from '../repositories/ProductsRepository.js'
 
 const router = express.Router()
+const repo = new ProductsRepository()
 
 router.get("/", async (req, res) => {
 
@@ -217,5 +221,38 @@ router.post("/", async (req, res) => {
         return res.status(500).json({ error: "Error al agregar el producto" })
     }
 })
+
+// Crear producto → sólo admin
+router.post(
+    '/',
+    passport.authenticate('jwt', { session: false }),
+    authorizeRoles('admin'),
+    async (req, res) => {
+      const dto = await repo.create(req.body)
+      res.status(201).json(dto)
+    }
+  )
+  
+  // Actualizar producto → sólo admin
+  router.put(
+    '/:pid',
+    passport.authenticate('jwt', { session: false }),
+    authorizeRoles('admin'),
+    async (req, res) => {
+      const dto = await repo.update(req.params.pid, req.body)
+      res.json(dto)
+    }
+  )
+  
+  // Eliminar producto → sólo admin
+  router.delete(
+    '/:pid',
+    passport.authenticate('jwt', { session: false }),
+    authorizeRoles('admin'),
+    async (req, res) => {
+      await repo.dao.delete(req.params.pid)
+      res.sendStatus(204)
+    }
+  )
 
 export default router

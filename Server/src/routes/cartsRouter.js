@@ -1,10 +1,14 @@
 import express from "express"
 import CartsManager from "../dao/cartsManager.js"
 import { getDB } from "../dataBase/db.js"
+import passport from 'passport'
+import { authorizeRoles } from '../middlewares/authorization.js'
+import CartsRepository from '../repositories/CartsRepository.js'
 
 const cartsManager = new CartsManager("./src/data/carts.json")
 
 const router = express.Router()
+const repo   = new CartsRepository()
 
 router.get("/", async (req, res) => {
     try {
@@ -168,5 +172,16 @@ router.post("/", async (req, res) => {
         return res.status(500).json({ error: "Error al agregar el producto" })
     }
 })
+
+// Agregar producto al carrito → sólo user
+router.post(
+    '/:cid/product/:pid',
+    passport.authenticate('jwt', { session: false }),
+    authorizeRoles('user'),
+    async (req, res) => {
+      const updatedCart = await repo.addProductToCart(req.params.cid, req.params.pid, req.body.quantity || 1)
+      res.json(updatedCart)
+    }
+)
 
 export default router
