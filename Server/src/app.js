@@ -14,6 +14,7 @@ import sessionsRouter from './routes/sessionsRouter.js'
 import UserModel from './models/user.js'
 import cookieParser from 'cookie-parser'
 import purchaseRouter from './routes/purchaseRouter.js'
+import mocksRouter from './routes/mocks.router.js'
 
 
 // Conexión a MongoDB
@@ -46,6 +47,8 @@ app.use("/api/sessions", sessionsRouter)
 app.use(cookieParser())
 
 app.use('/api/purchase', purchaseRouter)
+
+app.use('/api/mocks', mocksRouter)
 
 
 // Configuración de la sesión
